@@ -30,11 +30,16 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files: never commit real keys. Only the empty template is shared.
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# supabase cli (local temp files)
+supabase/.temp
+supabase/.branches
 
 # typescript
 *.tsbuildinfo
