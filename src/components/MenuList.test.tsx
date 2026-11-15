@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
+import { renderWithCart } from "@/test/render-with-cart";
 import type { MenuCategory } from "@/types/menu";
 import { MenuList } from "./MenuList";
 
@@ -24,7 +25,7 @@ const categories: MenuCategory[] = [
 
 describe("MenuList", () => {
   test("shows each section heading with its items in order", () => {
-    render(<MenuList categories={categories} />);
+    renderWithCart(<MenuList categories={categories} />);
 
     const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
     expect(headings).toEqual(["Test Mains", "Test Drinks"]);
@@ -38,14 +39,14 @@ describe("MenuList", () => {
   });
 
   test("marks only the sold-out item as 'Sold out'", () => {
-    render(<MenuList categories={categories} />);
+    renderWithCart(<MenuList categories={categories} />);
     const soldOutLabels = screen.getAllByText("Sold out");
     expect(soldOutLabels).toHaveLength(1);
     expect(soldOutLabels[0].closest("li")?.textContent).toContain("Test Noodles");
   });
 
   test("shows an empty message when there are no items", () => {
-    render(<MenuList categories={[]} />);
+    renderWithCart(<MenuList categories={[]} />);
     expect(screen.getByText(/No items on the menu right now/)).toBeDefined();
     expect(screen.queryByRole("list")).toBeNull();
   });
