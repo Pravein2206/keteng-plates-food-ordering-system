@@ -148,8 +148,8 @@ This app handles names, phone numbers, delivery addresses and payment receipts. 
 personal data.
 
 - **Never commit secrets.** No `.env` files or keys. Use `.env.example` with empty values.
-- Only the Supabase **anon** key may appear in browser code. The **service-role key must never be in
-  frontend code.**
+- Only the Supabase **publishable** key (`sb_publishable_...`, the replacement for the legacy anon key)
+  may appear in browser code. The **secret / service-role key must never be in frontend code.**
 - Enable Row Level Security on every table. Guests can create orders and read only their own order by
   reference. Only authenticated staff can see the full queue or edit menu data.
 - Use **synthetic test data** until the owner approves real menu items and prices.

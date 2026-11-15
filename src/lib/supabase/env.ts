@@ -1,16 +1,17 @@
 // Reads and checks the two public Supabase settings.
 //
-// Only the anon (public) key belongs here. The service-role key bypasses
+// Only the publishable key (sb_publishable_..., the replacement for the old
+// "anon" key) belongs here. The secret / service-role key bypasses
 // Row Level Security and must never be used in this app's frontend code.
 
 export type SupabaseEnv = {
   url: string;
-  anonKey: string;
+  publishableKey: string;
 };
 
 type RawSupabaseEnv = {
   url: string | undefined;
-  anonKey: string | undefined;
+  publishableKey: string | undefined;
 };
 
 export class SupabaseConfigError extends Error {
@@ -25,17 +26,17 @@ export class SupabaseConfigError extends Error {
 function readProcessEnv(): RawSupabaseEnv {
   return {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   };
 }
 
 export function getSupabaseEnv(raw: RawSupabaseEnv = readProcessEnv()): SupabaseEnv {
   const url = raw.url?.trim() ?? "";
-  const anonKey = raw.anonKey?.trim() ?? "";
+  const publishableKey = raw.publishableKey?.trim() ?? "";
 
   const missing: string[] = [];
   if (!url) missing.push("NEXT_PUBLIC_SUPABASE_URL");
-  if (!anonKey) missing.push("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!publishableKey) missing.push("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
 
   if (missing.length > 0) {
     throw new SupabaseConfigError(
@@ -52,5 +53,5 @@ export function getSupabaseEnv(raw: RawSupabaseEnv = readProcessEnv()): Supabase
     );
   }
 
-  return { url, anonKey };
+  return { url, publishableKey };
 }
