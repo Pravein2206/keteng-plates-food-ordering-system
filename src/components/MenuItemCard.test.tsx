@@ -10,6 +10,7 @@ const available: MenuItem = {
   name: "Test Rice Set",
   priceSen: 1490,
   isAvailable: true,
+  categoryKind: "main",
 };
 const soldOut: MenuItem = { ...available, id: 2, code: "T2", name: "Test Noodles", isAvailable: false };
 

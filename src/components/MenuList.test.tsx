@@ -8,15 +8,17 @@ const categories: MenuCategory[] = [
   {
     id: 1,
     name: "Test Mains",
+    kind: "main",
     items: [
-      { id: 10, code: "T1", name: "Test Rice Set", priceSen: 800, isAvailable: true },
-      { id: 11, code: "T2", name: "Test Noodles", priceSen: 900, isAvailable: false },
+      { id: 10, code: "T1", name: "Test Rice Set", priceSen: 800, isAvailable: true, categoryKind: "main" },
+      { id: 11, code: "T2", name: "Test Noodles", priceSen: 900, isAvailable: false, categoryKind: "main" },
     ],
   },
   {
     id: 2,
     name: "Test Drinks",
-    items: [{ id: 20, code: "D1", name: "Test Tea", priceSen: 100, isAvailable: true }],
+    kind: "drink",
+    items: [{ id: 20, code: "D1", name: "Test Tea", priceSen: 100, isAvailable: true, categoryKind: "drink" }],
   },
 ];
 
