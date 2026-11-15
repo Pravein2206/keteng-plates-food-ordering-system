@@ -86,27 +86,33 @@ Agreed by the team:
 - Database and staff authentication: **Supabase** (Postgres, Row Level Security, Storage for receipts)
 - Deployment: **Vercel** (preview deployments for each PR)
 - Version control and Agile tracking: **GitHub** (branches, PRs, Issues, project board)
+- Testing: **Vitest + React Testing Library** (`npm test`)
+- Runtime: **Node.js 24 LTS** (pinned in `.nvmrc` and `package.json` engines)
 
-Still to decide **[confirm]**: testing tools (e.g. Vitest + React Testing Library), PWA setup.
+Still to decide **[confirm]**: PWA setup.
 
 Do not add major dependencies or change tools without asking.
 
+This project uses **Next.js 16**, which differs from older versions. See @AGENTS.md: read the docs
+bundled in `node_modules/next/dist/docs/` before writing Next.js code. Supabase setup steps are in
+`docs/supabase-setup.md`.
+
 ## Folder Structure
 
-> Proposed layout. Update it once the app is scaffolded.
-
 ```
-/              user stories (us01.md ... us16.md), README, CLAUDE.md
-/docs          planning documents, AI usage log
-/workflows     step-by-step instructions for repeatable tasks (see Workflow below)
+/              user stories (us01.md ... us16.md), README, CLAUDE.md, AGENTS.md
+/docs          planning documents, Supabase setup guide, AI usage log
 /src
   /app         Next.js routes (customer pages and protected staff pages)
   /components  reusable UI
-  /lib         supabase client and helpers (e.g. price calculation)
+  /lib         helpers (e.g. price calculation)
+    /supabase  client.ts (browser), server.ts (server), env.ts (settings check)
   /types
 /supabase
-  /migrations  SQL schema, RLS policies, seed data
+  /migrations  SQL schema, RLS policies, seed data (numbered .sql files)
 ```
+
+Tests sit next to the code they test, named `*.test.ts` / `*.test.tsx`.
 
 ## File Naming Rules
 
