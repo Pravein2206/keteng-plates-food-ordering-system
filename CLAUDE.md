@@ -158,7 +158,9 @@ personal data.
   may appear in browser code. The **secret / service-role key must never be in frontend code.**
 - Enable Row Level Security on every table. Guests can create orders and read only their own order by
   reference. Only authenticated staff can see the full queue or edit menu data.
-- Use **synthetic test data** until the owner approves real menu items and prices.
+- **Menu data:** the owner approved using the menu and prices from their Google Form
+  (seeded in `supabase/migrations/0002_seed_menu.sql`). Confirm any menu or price change with the
+  owner. Tests still use **synthetic** items, never real customer data.
 - Never put real customer data in tests, screenshots, issues or PRs.
 
 ## Git Workflow
