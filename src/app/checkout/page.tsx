@@ -1,16 +1,24 @@
-import Link from "next/link";
+import { Suspense } from "react";
+import { CheckoutView } from "@/components/CheckoutView";
+import { MenuSkeleton } from "@/components/MenuSkeleton";
+import { allMenuItems, getMenu } from "@/lib/menu";
+import { createClient } from "@/lib/supabase/server";
 
-// Placeholder until US03 (delivery batch, name, phone and address).
+async function CheckoutWithFreshMenu() {
+  const supabase = await createClient();
+  const categories = await getMenu(supabase);
+  return (
+    <CheckoutView
+      menuItems={allMenuItems(categories)}
+      initialNow={new Date().toISOString()}
+    />
+  );
+}
+
 export default function CheckoutPage() {
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-6">
-      <header className="mb-6">
-        <Link href="/cart" className="text-sm font-medium underline underline-offset-4">
-          ← Back to cart
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Checkout</h1>
-      </header>
-      <p className="text-zinc-600 dark:text-zinc-400">Delivery details are coming soon.</p>
-    </main>
+    <Suspense fallback={<MenuSkeleton />}>
+      <CheckoutWithFreshMenu />
+    </Suspense>
   );
 }
