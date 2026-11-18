@@ -22,8 +22,10 @@ async function CheckoutWithFreshMenu() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<MenuSkeleton />}>
-      <CheckoutWithFreshMenu />
-    </Suspense>
+    <div className="min-h-full">
+      <Suspense fallback={<MenuSkeleton />}>
+        <CheckoutWithFreshMenu />
+      </Suspense>
+    </div>
   );
 }

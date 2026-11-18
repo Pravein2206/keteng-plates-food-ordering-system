@@ -20,10 +20,10 @@ export function CartBar({ menuItems }: { menuItems: MenuItem[] }) {
   );
 
   return (
-    <div className="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+    <div className="fixed inset-x-0 bottom-0 z-10 border-t border-[#e6dfd3] bg-[#fbf8f2]/95 px-4 py-3 backdrop-blur">
       <Link
         href="/cart"
-        className="mx-auto flex min-h-12 w-full max-w-md items-center justify-between rounded-full bg-zinc-900 px-5 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="mx-auto flex min-h-12 w-full max-w-5xl items-center justify-between rounded-2xl bg-[#1d5b45] px-5 font-semibold text-white shadow-[0_8px_24px_rgba(20,63,49,0.2)] hover:bg-[#143f31]"
       >
         <span>
           {itemCount} {itemCount === 1 ? "item" : "items"} · {formatRinggit(totalSen)}

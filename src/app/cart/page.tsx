@@ -15,12 +15,13 @@ async function CartWithFreshMenu() {
 
 export default function CartPage() {
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-6">
-      <header className="mb-6">
-        <Link href="/" className="text-sm font-medium underline underline-offset-4">
-          ← Back to menu
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+      <header className="mb-8">
+        <Link href="/" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-[#1d5b45] hover:bg-[#f3efe7]">
+          ← <span className="ml-2">Back to menu</span>
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Your cart</h1>
+        <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-[#e87932]">Ready when you are</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#143f31]">Your cart</h1>
       </header>
 
       <Suspense fallback={<MenuSkeleton />}>
