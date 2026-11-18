@@ -1,7 +1,7 @@
 export const MALAYSIA_TIME_ZONE = "Asia/Kuala_Lumpur";
 
-// Owner-approved schedules are still pending. A null cutoff means no cutoff
-// has been configured; it does not imply a made-up delivery or closing time.
+// The migration seeds these initial values. Runtime settings come from the
+// public delivery_batches table so orders and the UI use the same schedule.
 export const DELIVERY_BATCHES = [
   { id: "lunch-1", label: "Lunch 1", enabled: true, cutoff: null },
   { id: "lunch-2", label: "Lunch 2", enabled: true, cutoff: null },

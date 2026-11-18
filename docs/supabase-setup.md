@@ -70,6 +70,28 @@ For now we skip the Supabase CLI and Docker. They are useful but add setup work 
 This keeps every schema change reviewed and in git. We can switch to the Supabase CLI later
 without rewriting anything.
 
+### US04 order submission and staff access
+
+After review, run `supabase/migrations/0004_create_orders.sql` in the SQL Editor after migrations
+0001–0003. The migration seeds the four current delivery batches into `delivery_batches`, creates
+the order tables, enables Row Level Security, and grants guests read-only access to batch settings
+and access to the order-submission function. Customer names, phone numbers, addresses and order
+items are readable only by authenticated users whose trusted `app_metadata.role` is `staff`.
+
+The checkout page and the database submission function both use `delivery_batches` as the source
+for batch labels, enabled status and optional cut-offs. A project admin may update those rows after
+the restaurant confirms the schedule. Cut-off dates and times are Malaysia local time; leave both
+cut-off columns empty until a cut-off is confirmed.
+
+Create staff accounts through the Supabase Auth admin workflow. Assign `role: "staff"` in the
+account's **app metadata** using a trusted admin environment; never put the role in user-editable
+metadata, add a staff signup form, or expose a service-role key in the app. A normal customer
+account must not be assigned the staff role.
+
+The customer order form submits without a payment status. Payment remains manual and is not
+confirmed or marked paid by this feature. Orders use database menu prices and the configured RM2
+delivery fee. Configure and verify the Supabase project before accepting real customer orders.
+
 ## Good to know
 
 - **Free projects pause after about a week with no activity.** Restoring takes one click in the

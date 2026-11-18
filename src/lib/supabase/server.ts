@@ -20,9 +20,8 @@ export async function createClient() {
             cookieStore.set(name, value, options),
           );
         } catch {
-          // Server Components cannot set cookies. This is safe to ignore
-          // until staff login exists; that work will refresh sessions in a
-          // Next.js proxy instead.
+          // Server Components cannot set cookies. The Next.js proxy refreshes
+          // sessions and writes updated cookies on the response.
         }
       },
     },

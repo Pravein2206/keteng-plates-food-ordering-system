@@ -1,16 +1,31 @@
-import { describe, expect, test } from "vitest";
-import { fireEvent, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { act, fireEvent, screen } from "@testing-library/react";
 import { CartView } from "@/components/CartView";
 import { saveCart, loadCart } from "@/lib/cart-storage";
+import { DELIVERY_BATCHES } from "@/lib/delivery-batches";
 import { testMain, testMain2, testMenuItems, testSoldOut } from "@/test/menu-fixtures";
 import { renderWithCart } from "@/test/render-with-cart";
 import { CheckoutView } from "./CheckoutView";
 
 const initialNow = "2026-11-18T00:00:00.000Z";
 
+beforeEach(() => {
+  sessionStorage.clear();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 function startWith(lines: { itemId: number; quantity: number }[]) {
   saveCart(localStorage, lines);
-  return renderWithCart(<CheckoutView menuItems={testMenuItems} initialNow={initialNow} />);
+  return renderWithCart(
+    <CheckoutView
+      menuItems={testMenuItems}
+      deliveryBatches={DELIVERY_BATCHES}
+      initialNow={initialNow}
+    />,
+  );
 }
 
 describe("CheckoutView", () => {
@@ -49,7 +64,7 @@ describe("CheckoutView", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
-  test("validates delivery details and clearly says no order was saved", () => {
+  test("validates delivery details and waits for an explicit order submission", () => {
     startWith([{ itemId: testMain.id, quantity: 1 }]);
     fireEvent.change(screen.getByLabelText("Full name"), {
       target: { value: "Nur Aisyah Ahmad" },
@@ -63,13 +78,58 @@ describe("CheckoutView", () => {
     fireEvent.click(screen.getByRole("radio", { name: /Lunch 1/ }));
     fireEvent.click(screen.getByRole("button", { name: "Review delivery details" }));
 
-    expect(screen.getByRole("status").textContent).toContain(
-      "Final order submission is not available yet; no order has been saved.",
-    );
+    expect(screen.getByRole("status").textContent).toContain("Your order has not been submitted yet.");
+    expect(screen.getByRole("button", { name: "Place order" })).toBeDefined();
     expect(screen.getByLabelText<HTMLTextAreaElement>("Delivery address").value).toBe(
       "12 Jalan Mawar, Kuala Lumpur",
     );
     expect(screen.getAllByText("Lunch 1").length).toBeGreaterThan(0);
+  });
+
+  test("confirms only after persistence succeeds and reuses the same key on retry", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(
+        Response.json(
+          { error: "We could not confirm that your order was saved." },
+          { status: 503 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        Response.json(
+          { reference: "KP-SAVED-REFERENCE", totalSen: 1700, duplicate: true },
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal("fetch", fetch);
+    startWith([{ itemId: testMain.id, quantity: 1 }]);
+
+    fireEvent.change(screen.getByLabelText("Full name"), {
+      target: { value: "Test Customer" },
+    });
+    fireEvent.change(screen.getByLabelText("Malaysian phone number"), {
+      target: { value: "012-345 6789" },
+    });
+    fireEvent.change(screen.getByLabelText("Delivery address"), {
+      target: { value: "12 Test Street, Kuala Lumpur" },
+    });
+    fireEvent.click(screen.getByRole("radio", { name: /Lunch 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Review delivery details" }));
+    fireEvent.click(screen.getByRole("button", { name: "Place order" }));
+
+    expect(await screen.findByRole("alert")).toBeDefined();
+    expect(screen.queryByText("Order submitted")).toBeNull();
+    expect(loadCart(localStorage)).toEqual([{ itemId: testMain.id, quantity: 1 }]);
+    const firstRequestKey = fetch.mock.calls[0][1].headers["Idempotency-Key"];
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Place order" }));
+    });
+
+    expect(await screen.findByText("Order submitted")).toBeDefined();
+    expect(screen.getByText("KP-SAVED-REFERENCE")).toBeDefined();
+    expect(fetch.mock.calls[1][1].headers["Idempotency-Key"]).toBe(firstRequestKey);
+    expect(loadCart(localStorage)).toEqual([]);
   });
 
   test("prevents checkout when a cart item has sold out", () => {

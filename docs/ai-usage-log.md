@@ -216,3 +216,66 @@ Implement the US03 delivery-details stage and connect it to the US02 cart withou
 - The restaurant owner must confirm delivery schedules, cut-offs and batch availability before those settings are configured for real ordering.
 - US04 must accept `CheckoutData`, revalidate item IDs and quantities, recalculate the total from current database prices and persist the order. The checkout does not submit or save an order.
 - Configure local Supabase publishable settings and use Node 24 to verify the production build in the project runtime.
+
+---
+
+## 2026-11-18: US04 Order submission and staff queue (feature/us04-orders)
+
+**Agent:** GitHub Copilot
+
+### Task
+Implement US04 on an isolated branch based on the latest `origin/feature/us03-delivery`, with
+idempotent order submission, success-only confirmation, private staff access, and no payment
+automation.
+
+### Prompt / approach
+1. Read `us04.md`, the US02/US03 checkout and cart implementation, existing Supabase migrations,
+   and the Next.js 16 Route Handler, Proxy, authentication and data-security guides bundled with
+   the installed Next.js package.
+2. Refreshed `origin/feature/us03-delivery` and verified the exact `feature/us04-orders` branch
+   starts at its tip. No files on another branch were changed.
+3. Keep customer submission on a server endpoint and use a database function for atomic,
+   idempotent persistence and current menu price calculation. Restrict queue reads using trusted
+   staff app metadata and RLS.
+
+### What the agent produced
+- An order schema, private staff-only read policies, and a fixed-search-path `SECURITY DEFINER`
+  function that uses current database prices, adds the existing RM2 fee once, and returns the
+  same reference for a repeated matching idempotency key.
+- A `delivery_batches` table seeded with the existing four settings. Both server validation and
+  the database function enforce enabled status and Malaysia-local cut-offs, using current labels
+  rather than duplicated hardcoded values.
+- Server validation and persistence handling, checkout retry behavior, and a confirmation shown
+  only after a saved-order result is returned.
+- Staff sign-in, session refresh, protected order queue, and sign-out.
+- Focused tests for successful, failed and duplicate submissions, staff authorization, and the
+  confirmation/retry behavior.
+
+### What was corrected along the way
+- The generated branch name initially did not match the requested exact name. A separate exact
+  branch was created from the freshly fetched origin tip before any files were edited.
+- A correctness review found hardcoded batch labels and no database-side cut-off check. The
+  migration now stores the existing settings in `delivery_batches`, and the checkout, API and RPC
+  all use that table; no new schedules were invented.
+- *Team review:* add anything the reviewer changes here.
+
+### What we learned
+- Database uniqueness plus a payload comparison is needed for reliable idempotency; client-side
+  button disabling alone cannot prevent duplicate orders after network retries.
+- A staff page check is not sufficient by itself. Order-table RLS independently checks trusted
+  app metadata before returning customer details.
+
+### Verification
+- `npm test`: 111 tests passed across 17 files.
+- `npm run lint`: passed.
+- `npx tsc --noEmit`: passed after Next.js generated its route/layout types.
+- `npm run build`: compilation and TypeScript passed; prerendering stopped because
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not configured.
+- The available runtime was Node 26.13.1 rather than the repository's required Node 24, so npm
+  reported an engine warning.
+
+### Still uncertain / follow-ups
+- No Supabase credentials were available, so the migration, RPC grants/RLS, staff metadata
+  provisioning, live insert/retry behavior, and live staff queue could not be exercised.
+- The restaurant owner must still confirm delivery batch schedules and cut-offs. The code reuses
+  current configured batch availability and does not invent times or payment rules.

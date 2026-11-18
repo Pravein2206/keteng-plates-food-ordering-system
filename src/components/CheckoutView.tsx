@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import {
-  DELIVERY_BATCHES,
   getDeliveryBatchAvailability,
   type DeliveryBatchAvailability,
+  type DeliveryBatchConfig,
 } from "@/lib/delivery-batches";
 import {
   validateDeliveryDetails,
@@ -15,6 +15,7 @@ import {
 import { buildCartLines, getCheckoutProblems, type CheckoutProblem } from "@/lib/cart";
 import { calculateCartTotal } from "@/lib/cart-total";
 import { formatRinggit } from "@/lib/money";
+import { isIdempotencyKey } from "@/lib/order-submission";
 import type { MenuItem } from "@/types/menu";
 import type { CheckoutData } from "@/types/checkout";
 import { useCart } from "./CartProvider";
@@ -34,6 +35,8 @@ const initialFormValues: DeliveryFormValues = {
   batchId: "",
 };
 
+const idempotencyStorageKey = "keteng.order-submission-key";
+
 function getBatchMessage(reason: DeliveryBatchAvailability["reason"]): string {
   switch (reason) {
     case "expired":
@@ -49,12 +52,14 @@ function getBatchMessage(reason: DeliveryBatchAvailability["reason"]): string {
 
 export function CheckoutView({
   menuItems,
+  deliveryBatches,
   initialNow,
 }: {
   menuItems: MenuItem[];
+  deliveryBatches: readonly DeliveryBatchConfig[];
   initialNow: string;
 }) {
-  const { lines } = useCart();
+  const { lines, remove } = useCart();
   const cartLines = buildCartLines(lines, menuItems);
   const cartProblems = getCheckoutProblems(cartLines);
   const hasMissingItems = cartLines.length !== lines.length;
@@ -72,6 +77,12 @@ export function CheckoutView({
   const [values, setValues] = useState(initialFormValues);
   const [errors, setErrors] = useState<DeliveryFieldErrors>({});
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
+  const [submissionError, setSubmissionError] = useState("");
+  const [isIdempotencyConflict, setIsIdempotencyConflict] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmation, setConfirmation] = useState<{ reference: string; totalSen: number } | null>(
+    null,
+  );
   const [now, setNow] = useState(() => new Date(initialNow));
 
   useEffect(() => {
@@ -86,14 +97,18 @@ export function CheckoutView({
     setValues((current) => ({ ...current, [key]: value }));
     setErrors({});
     setCheckoutData(null);
+    setSubmissionError("");
+    setIsIdempotencyConflict(false);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setCheckoutData(null);
+    setSubmissionError("");
+    setIsIdempotencyConflict(false);
     if (!isCartValid) return;
 
-    const validation = validateDeliveryDetails(values, new Date());
+    const validation = validateDeliveryDetails(values, new Date(), deliveryBatches);
     setNow(new Date());
     if (!validation.valid) {
       setErrors(validation.errors);
@@ -106,6 +121,94 @@ export function CheckoutView({
       delivery: validation.details,
     });
   };
+
+  const handlePlaceOrder = async () => {
+    if (!checkoutData || isSubmitting) return;
+    setSubmissionError("");
+    setIsIdempotencyConflict(false);
+    setIsSubmitting(true);
+
+    try {
+      let idempotencyKey = window.sessionStorage.getItem(idempotencyStorageKey);
+      if (!idempotencyKey || !isIdempotencyKey(idempotencyKey)) {
+        idempotencyKey = window.crypto.randomUUID();
+        window.sessionStorage.setItem(idempotencyStorageKey, idempotencyKey);
+      }
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey,
+        },
+        body: JSON.stringify(checkoutData),
+      });
+      const result: unknown = await response.json();
+      if (!response.ok) {
+        const message =
+          typeof result === "object" &&
+          result !== null &&
+          "error" in result &&
+          typeof result.error === "string"
+            ? result.error
+            : "We could not confirm that your order was saved. Retry with the same checkout details.";
+        setSubmissionError(message);
+        setIsIdempotencyConflict(response.status === 409);
+        return;
+      }
+
+      if (
+        typeof result !== "object" ||
+        result === null ||
+        !("reference" in result) ||
+        typeof result.reference !== "string" ||
+        !("totalSen" in result) ||
+        typeof result.totalSen !== "number" ||
+        !Number.isSafeInteger(result.totalSen) ||
+        result.totalSen < 1
+      ) {
+        setSubmissionError("We could not confirm that your order was saved. Retry with the same checkout details.");
+        return;
+      }
+
+      setConfirmation({ reference: result.reference, totalSen: result.totalSen });
+      window.sessionStorage.removeItem(idempotencyStorageKey);
+      lines.forEach(({ itemId }) => remove(itemId));
+    } catch {
+      setSubmissionError(
+        "We could not confirm that your order was saved. Retry with the same checkout details.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (confirmation) {
+    return (
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
+        <section
+          role="status"
+          className="rounded-xl border border-green-300 bg-green-50 p-5 text-green-950 dark:border-green-900 dark:bg-green-950 dark:text-green-100"
+        >
+          <h1 className="text-2xl font-semibold">Order submitted</h1>
+          <p className="mt-2">Your order was saved successfully.</p>
+          <dl className="mt-4 flex flex-col gap-2">
+            <div className="flex justify-between gap-4">
+              <dt>Order reference</dt>
+              <dd className="font-semibold">{confirmation.reference}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt>Total</dt>
+              <dd className="font-semibold tabular-nums">{formatRinggit(confirmation.totalSen)}</dd>
+            </div>
+          </dl>
+        </section>
+        <Link href="/" className="mt-5 inline-block font-medium underline underline-offset-4">
+          Back to menu
+        </Link>
+      </main>
+    );
+  }
 
   if (lines.length === 0) {
     return (
@@ -156,7 +259,7 @@ export function CheckoutView({
     );
   }
 
-  const selectedBatch = DELIVERY_BATCHES.find((batch) => batch.id === values.batchId);
+  const selectedBatch = deliveryBatches.find((batch) => batch.id === values.batchId);
   const selectedBatchAvailability = selectedBatch
     ? getDeliveryBatchAvailability(selectedBatch, now)
     : null;
@@ -261,7 +364,7 @@ export function CheckoutView({
               Delivery times and order cut-offs are awaiting restaurant confirmation.
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              {DELIVERY_BATCHES.map((batch) => {
+              {deliveryBatches.map((batch) => {
                 const availability = getDeliveryBatchAvailability(batch, now);
                 const isSelected = values.batchId === batch.id;
                 return (
@@ -310,13 +413,50 @@ export function CheckoutView({
           </button>
 
           {checkoutData ? (
-            <p
-              role="status"
-              className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+            <div className="flex flex-col gap-3">
+              <p
+                role="status"
+                className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+              >
+                Review complete for {checkoutData.delivery.deliveryBatchLabel}. Your order has not
+                been submitted yet.
+              </p>
+              <button
+                type="button"
+                onClick={handlePlaceOrder}
+                disabled={isSubmitting}
+                className="min-h-12 rounded-full bg-green-800 px-5 font-semibold text-white hover:bg-green-700 disabled:cursor-wait disabled:opacity-60"
+              >
+                {isSubmitting ? "Submitting order…" : "Place order"}
+              </button>
+            </div>
+          ) : null}
+          {submissionError ? (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
             >
-              Your details are ready for {checkoutData.delivery.deliveryBatchLabel}. Final order
-              submission is not available yet; no order has been saved.
-            </p>
+              <p>{submissionError}</p>
+              {isIdempotencyConflict ? (
+                <p className="mt-2">
+                  If you need to submit these changed details as a new order, review them and start a
+                  new submission key.
+                </p>
+              ) : null}
+              {isIdempotencyConflict ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.sessionStorage.removeItem(idempotencyStorageKey);
+                    setSubmissionError("");
+                    setIsIdempotencyConflict(false);
+                  }}
+                  className="mt-2 font-semibold underline underline-offset-4"
+                >
+                  Start a new submission
+                </button>
+              ) : null}
+            </div>
           ) : null}
         </form>
 
