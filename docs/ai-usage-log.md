@@ -107,3 +107,70 @@ real data from Supabase.
 - Prices for the sold-out items left out (M10, M11, M13, M15, M16, N2, S3, AK1-4, SM1-4).
 - Until US09, the owner or staff must mark items sold out in the Supabase Table Editor.
 - Whether "Add On" items can be ordered alone is a business rule to settle in US02.
+
+---
+
+## 2026-11-15: US02 Cart totals and delivery fee (feature/us02-cart, issue #2)
+
+**Agent:** Claude Code (Claude Opus 5.5)
+**Team member:** Pravein (Developer 1)
+
+### Task
+Let customers add available items, change quantities, and see item totals plus the RM2 delivery
+fee charged once. Block checkout for an empty cart or invalid quantities.
+
+### Prompt / approach
+1. Asked the agent to explain US02 and propose a plan first. It asked six questions.
+2. Decisions we made:
+   - save the cart on the phone (localStorage) and drop it after 24 hours; we asked for the pros
+     and cons of each option before choosing
+   - no maximum quantity until the owner decides
+   - pressing − at 1 removes the item
+   - `/checkout` is a placeholder until US03
+   - items that sell out while in a cart are flagged and block checkout
+   - add-ons need at least one **main** dish; drinks can be ordered alone
+3. Unconfirmed business rules went into GitHub issue #19 ("Questions for the owner").
+4. We changed the plan once: first the agent let drinks count as a main for add-ons; we said
+   add-ons need a real main dish, so it switched from a yes/no add-on flag to section types
+   (`main`, `add_on`, `drink`).
+
+### What the agent produced
+- `0003_category_kinds.sql`: section type per menu section (we ran it in the SQL Editor)
+- `cart-total.ts`: the single tested total function (integer sen, RM2 once, rejects empty carts
+  and zero/negative/decimal quantities)
+- `cart.ts` (rules), `cart-storage.ts` (save/load with 24-hour expiry), `cart-store.ts` +
+  `CartProvider` (shared cart)
+- Add button and − 1 + stepper, sticky cart bar, `/cart` page, `/checkout` placeholder
+- 80 passing tests
+
+### Verification (375px, real Supabase menu)
+- M1 + M4: cart bar and cart page both show RM25.00 (the story's example).
+- Cart survived a page reload; only item ids and quantities are saved.
+- + on the cart page updated the line (2 × RM8.00) and the total (RM33.00).
+- Checkout rules with real items: add-ons only and add-on + drink blocked; drinks only and
+  main + add-on allowed; sold-out M3 flagged; empty cart blocked.
+- No horizontal scroll, no console errors.
+
+### What was corrected along the way
+- A one-off command used `python`, which on Windows opened the Microsoft Store and hung. The agent
+  stopped it and used its file-editing tool instead.
+- During the manual check, pages got stuck on "Loading menu…". The agent tested and ruled out its
+  first guess (the cart storage) and found the real cause: the Browser pane in the Claude app was
+  hidden, so the browser paused the animation timer React uses to show streamed content. Not an
+  app bug; it worked as soon as the pane was visible. Lesson: keep the preview visible while
+  testing, and test a hypothesis before "fixing" code.
+- Stopping a background server task did not always stop the Node process holding the port; the
+  agent now checks the port and stops only its own Next.js process.
+- *Team review:* add anything the reviewer changes here.
+
+### What we learned
+- Keeping money in whole sen and in one function makes totals easy to test (e.g. RM25 example).
+- Unconfirmed business rules should be written down (issue #19) and coded so they are easy to
+  change: here, section types live in the database, not in the code.
+- The cart total is for display only. In US04 the server must recalculate it from database
+  prices.
+
+### Still uncertain / follow-ups
+- Max quantity per item, add-ons alone and drinks alone: waiting for the owner (issue #19).
+- `/checkout` is reachable by typing the URL even with an empty cart; US03 must guard it.
+- The cart is cleared after an order is placed in US04 (not yet built).

@@ -7,6 +7,7 @@ const rows: MenuCategoryRow[] = [
   {
     id: 2,
     name: "Drinks",
+    kind: "drink",
     sort_order: 20,
     menu_items: [
       { id: 21, code: "D2", name: "Test Drink B", price_sen: 150, is_available: false, sort_order: 20 },
@@ -16,12 +17,13 @@ const rows: MenuCategoryRow[] = [
   {
     id: 1,
     name: "Mains",
+    kind: "main",
     sort_order: 10,
     menu_items: [
       { id: 10, code: "T1", name: "Test Rice Set", price_sen: 850, is_available: true, sort_order: 10 },
     ],
   },
-  { id: 3, name: "Empty Section", sort_order: 30, menu_items: [] },
+  { id: 3, name: "Empty Section", kind: "add_on", sort_order: 30, menu_items: [] },
 ];
 
 // A tiny stand-in for the Supabase client that returns a fixed result.
@@ -46,8 +48,10 @@ describe("toMenuCategories", () => {
       name: "Test Rice Set",
       priceSen: 850,
       isAvailable: true,
+      categoryKind: "main",
     });
     expect(drinks.items[1].isAvailable).toBe(false);
+    expect(drinks.items[1].categoryKind).toBe("drink");
   });
 
   test("hides categories with no items", () => {
