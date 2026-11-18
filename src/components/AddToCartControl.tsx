@@ -17,7 +17,7 @@ export function AddToCartControl({ item }: { item: MenuItem }) {
         type="button"
         onClick={() => add(item)}
         aria-label={`Add ${item.name} to cart`}
-        className="min-h-11 rounded-full bg-zinc-900 px-5 font-medium text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="min-h-11 shrink-0 rounded-full bg-[#1d5b45] px-5 font-bold text-white shadow-[0_8px_18px_rgba(20,63,49,0.14)] hover:-translate-y-0.5 hover:bg-[#143f31] hover:shadow-md"
       >
         Add
       </button>

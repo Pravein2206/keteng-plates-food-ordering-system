@@ -4,7 +4,6 @@ One entry per task where an AI agent helped. Record what we asked, what it produ
 changed and what we learned.
 
 ---
-
 ## 2026-11-15: Project scaffold (chore/project-setup)
 
 **Agent:** Claude Code (Claude Opus 5.5)
@@ -279,3 +278,147 @@ automation.
   provisioning, live insert/retry behavior, and live staff queue could not be exercised.
 - The restaurant owner must still confirm delivery batch schedules and cut-offs. The code reuses
   current configured batch availability and does not invent times or payment rules.
+
+---
+
+## 2026-11-18: Restaurant UI redesign (feature/ui-redesign)
+
+**Agent:** GitHub Copilot
+**Team member:** Mutallib (Scrum Master / Product Owner)
+
+### Task
+Refresh the customer ordering and staff queue presentation with a warm cream, deep green and
+orange restaurant visual system without changing ordering behavior, contracts, authentication or
+database logic.
+
+### Prompt / approach
+1. Inspected the merged US01-US04 implementation, user stories, routes, components, tests and
+   existing Tailwind styling before editing.
+2. Confirmed the redesign branch points at the latest `origin/main`, which already contains the
+   merged Sprint 1 PRs.
+3. Read the installed Next.js 16 App Router, CSS and image guidance before changing the UI.
+4. Reused the existing components and dependencies. No approved image assets were present, so no
+   food photos were invented or added.
+
+### What the agent produced
+- A responsive visual refresh for the menu, cart, checkout, confirmation, staff login and staff
+  order queue.
+- Shared accessible focus states, warm surface colors, rounded cards, clearer hierarchy and
+  mobile-friendly tap targets.
+- No changes to Supabase migrations, API routes, cart calculations, validation, authentication or
+  order submission behavior.
+
+### Verification
+- `npm test`: 111 tests passed across 17 files.
+- `npm run lint`: passed.
+- `npx tsc --noEmit`: passed.
+- `npm run build`: compilation and TypeScript passed; prerendering stopped because local
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not configured.
+- The available runtime was Node 26.13.1 rather than the repository's required Node 24, so npm
+  reported an engine warning.
+
+### What we learned
+- Presentation-only changes can preserve the full ordering flow when existing component props,
+  state stores and server boundaries are kept unchanged.
+- The repository needs local Supabase publishable settings for a complete production build and
+  live visual preview.
+
+---
+
+## 2026-11-18: Visual refinement pass for restaurant UI (feature/ui-redesign)
+
+**Agent:** GitHub Copilot
+**Team member:** Mutallib (Scrum Master / Product Owner)
+
+### Task
+Make the existing redesign substantially more polished while keeping all US01-US04 behavior,
+Supabase data, API contracts, authentication and calculations unchanged. No restaurant food
+photographs were available or approved.
+
+### What the agent produced
+- A structured landing-page hero with Keteng Plates branding, a clear Order now link and a CSS-only
+  plate illustration.
+- Live category navigation linked to the existing Supabase category sections.
+- Responsive food-card layouts with image-ready decorative placeholders, real menu names/prices,
+  add controls and clear sold-out states.
+- Preserved the existing cart bar and customer/staff flows.
+
+### Verification
+- `npm test`: 111 tests passed across 17 files.
+- `npm run lint`: passed.
+- `npx tsc --noEmit`: passed.
+
+### What we learned
+- CSS-only placeholders keep the design distinctive and image-ready without implying that
+  decorative artwork is an actual restaurant photograph.
+## 2026-11-18: Production-quality UI redesign (mutallib03-feature/ui-redesign)
+
+**Agent:** GitHub Copilot using Copilot SDK in VS Code
+**Team member:** Mutallib (Scrum Master / Product Owner)
+
+### Task
+Redesign the customer menu, cart and checkout, and apply consistent presentation to staff and
+loading/error states without changing US01-US04 business behavior.
+
+### Prompt / approach
+1. Read US01-US04 and inspected the existing redesigned branch, shared components, Tailwind setup,
+   Supabase menu shape and cart/checkout logic.
+2. Asked for scope decisions and created a written plan; the plan was approved before editing.
+3. Changed presentation only. Menu categories remain data-driven, RM2 totals and delivery validation
+   remain in their existing functions, and order/submission APIs were not modified.
+
+### What the agent produced
+- Sticky responsive navigation with desktop and mobile layouts and a live cart count
+- Vertical full-width menu categories with horizontally scrollable category links
+- Improved food cards and a reusable illustrated placeholder
+- Redesigned cart and checkout layouts, mobile checkout actions, staff pages and loading/error
+  states
+
+### Verification
+- `npm test`: 17 test files, 111 tests passed
+- `npm run lint`: passed
+- `npx tsc --noEmit`: passed
+- `npm run build`: compile and TypeScript passed, but prerendering was retried after marking the staff
+  queue dynamic; see the final verification report for the rerun result
+
+### What was corrected
+- A duplicate accessible remove-name collision in the cart was removed by showing the explicit
+  Remove control only for sold-out lines.
+
+### What we learned
+- Staff queue pages must remain runtime-rendered because they read authenticated, uncached data.
+- Accessible labels and test-facing text should remain stable while visual structure changes.
+
+---
+
+## 2026-11-18: UI/UX Pro Max targeted polish (mutallib03-feature/ui-redesign)
+
+**Agent:** GitHub Copilot using Copilot SDK in VS Code
+**Team member:** Mutallib (Scrum Master / Product Owner)
+
+### Task
+Apply approved recommendations 1-4 from the UI/UX audit without redesigning the existing
+customer/staff layouts or changing business logic.
+
+### What the agent produced
+- Replaced emoji and decorative navigation/hero glyphs with a small accessible SVG icon primitive.
+- Added semantic Tailwind tokens for the existing cream, green and orange palette, shared borders and
+  elevation.
+- Reduced excessive uppercase/decorative typography in menu, cart and checkout sections.
+- Kept cart thumbnails visible on mobile and moved the sticky checkout actions into the valid checkout
+  render path with safe-area bottom padding.
+- Added reduced-motion handling and the Next.js scroll-behavior metadata attribute.
+
+### Verification
+- `npm test`: 17 test files, 111 tests passed
+- `npm run lint`: passed
+- `npx tsc --noEmit`: passed
+- Browser smoke checks passed at 375px, 430px and 768px for responsive navigation and checkout form
+  visibility.
+
+### Still needing manual verification
+- Human visual review of spacing, typography and contrast at 1440px.
+- Keyboard tab-through and screen-reader announcement checks.
+- Checkout submission flow against configured Supabase data.
+
+---

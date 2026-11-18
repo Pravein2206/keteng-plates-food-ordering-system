@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 const inputClass =
-  "mt-1 min-h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base dark:border-zinc-700 dark:bg-zinc-900";
+  "mt-1 min-h-12 w-full rounded-xl border border-[#d8d0c3] bg-[#fbf8f2] px-3 text-base text-[#18352b] placeholder:text-[#9a9f99]";
 
 export function StaffLoginForm() {
   const router = useRouter();
@@ -40,9 +40,9 @@ export function StaffLoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-5">
       <div>
-        <label htmlFor="staff-email" className="font-medium">
+        <label htmlFor="staff-email" className="font-semibold text-[#18352b]">
           Email
         </label>
         <input
@@ -56,7 +56,7 @@ export function StaffLoginForm() {
         />
       </div>
       <div>
-        <label htmlFor="staff-password" className="font-medium">
+        <label htmlFor="staff-password" className="font-semibold text-[#18352b]">
           Password
         </label>
         <input
@@ -70,14 +70,14 @@ export function StaffLoginForm() {
         />
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="rounded-xl border border-[#efc8b7] bg-[#fff0e5] p-3 text-sm text-[#8b3f22]">
           {error}
         </p>
       ) : null}
       <button
         type="submit"
         disabled={submitting}
-        className="min-h-12 rounded-full bg-zinc-900 px-5 font-semibold text-white hover:bg-zinc-700 disabled:cursor-wait disabled:opacity-60 dark:bg-zinc-50 dark:text-zinc-900"
+        className="min-h-12 rounded-xl bg-[#1d5b45] px-5 font-semibold text-white hover:bg-[#143f31] disabled:cursor-wait disabled:opacity-60"
       >
         {submitting ? "Signing in…" : "Sign in"}
       </button>

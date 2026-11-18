@@ -26,7 +26,7 @@ const checkoutProblemMessages: Record<Exclude<CheckoutProblem, "empty">, string>
 };
 
 const inputClass =
-  "mt-1 min-h-12 w-full rounded-lg border border-zinc-300 bg-white px-3 text-base dark:border-zinc-700 dark:bg-zinc-900";
+  "mt-2 min-h-12 w-full rounded-xl border border-[#d8d0c3] bg-[#fffdf9] px-4 text-base text-[#18352b] outline-none placeholder:text-[#9a9f99] focus:border-[#1d5b45] focus:ring-4 focus:ring-[#1d5b45]/10";
 
 const initialFormValues: DeliveryFormValues = {
   fullName: "",
@@ -188,7 +188,7 @@ export function CheckoutView({
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
         <section
           role="status"
-          className="rounded-xl border border-green-300 bg-green-50 p-5 text-green-950 dark:border-green-900 dark:bg-green-950 dark:text-green-100"
+          className="rounded-3xl border border-[#b9d8c3] bg-[#edf5ef] p-6 text-[#143f31] shadow-[0_20px_60px_rgba(20,63,49,0.08)]"
         >
           <h1 className="text-2xl font-semibold">Order submitted</h1>
           <p className="mt-2">Your order was saved successfully.</p>
@@ -203,7 +203,7 @@ export function CheckoutView({
             </div>
           </dl>
         </section>
-        <Link href="/" className="mt-5 inline-block font-medium underline underline-offset-4">
+        <Link href="/" className="mt-5 inline-block font-semibold text-[#1d5b45] underline underline-offset-4">
           Back to menu
         </Link>
       </main>
@@ -212,16 +212,16 @@ export function CheckoutView({
 
   if (lines.length === 0) {
     return (
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 sm:py-8 lg:px-8 lg:pb-10">
         <header className="mb-6">
           <Link href="/cart" className="text-sm font-medium underline underline-offset-4">
             ← Back to cart
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Delivery details</h1>
         </header>
-        <div className="rounded-xl border border-dashed border-zinc-300 px-4 py-8 text-center dark:border-zinc-700">
+        <div className="rounded-2xl border border-dashed border-[#d8d0c3] bg-white px-4 py-10 text-center">
           <p>Your cart is empty. Add something from the menu before checkout.</p>
-          <Link href="/" className="mt-4 inline-block font-medium underline underline-offset-4">
+          <Link href="/" className="mt-4 inline-block font-semibold text-[#1d5b45] underline underline-offset-4">
             Back to menu
           </Link>
         </div>
@@ -231,7 +231,7 @@ export function CheckoutView({
 
   if (!isCartValid || total === null) {
     return (
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 sm:py-8 lg:px-8 lg:pb-10">
         <header className="mb-6">
           <Link href="/cart" className="text-sm font-medium underline underline-offset-4">
             ← Back to cart
@@ -240,7 +240,7 @@ export function CheckoutView({
         </header>
         <div
           role="alert"
-          className="rounded-xl border border-red-300 bg-red-50 p-4 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
+          className="rounded-2xl border border-[#efc8b7] bg-[#fff0e5] p-4 text-[#8b3f22]"
         >
           <p className="font-semibold">Your cart needs attention before checkout.</p>
           <ul className="mt-2 list-inside list-disc text-sm">
@@ -251,7 +251,7 @@ export function CheckoutView({
               problem === "empty" ? null : <li key={problem}>{checkoutProblemMessages[problem]}</li>,
             )}
           </ul>
-          <Link href="/cart" className="mt-4 inline-block font-medium underline underline-offset-4">
+          <Link href="/cart" className="mt-4 inline-block font-semibold text-[#1d5b45] underline underline-offset-4">
             Review your cart
           </Link>
         </div>
@@ -265,21 +265,23 @@ export function CheckoutView({
     : null;
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-28 sm:px-6 sm:py-8 lg:px-8 lg:pb-10">
       <header className="mb-6">
-        <Link href="/cart" className="text-sm font-medium underline underline-offset-4">
-          ← Back to cart
+        <Link href="/cart" className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-[#1d5b45] hover:bg-[#f3efe7]">
+          ← <span className="ml-2">Back to cart</span>
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Delivery details</h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-6 text-sm font-bold text-brand-orange">Almost there</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#143f31]">Delivery details</h1>
+        <p className="mt-2 text-sm leading-6 text-[#627269]">
           Add your contact details and choose an available delivery batch.
         </p>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem]">
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-          <section className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-            <h2 className="text-lg font-semibold">Your details</h2>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <form id="checkout-details" onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+          <section className="rounded-3xl border border-[#e6dfd3] bg-white p-5 shadow-[0_10px_30px_rgba(20,63,49,0.06)] sm:p-7">
+            <p className="text-sm font-bold text-brand-orange">Customer information</p>
+            <h2 className="mt-1 text-xl font-black text-[#143f31]">Your details</h2>
             <div className="mt-4 flex flex-col gap-4">
               <div>
                 <label htmlFor="full-name" className="font-medium">
@@ -298,7 +300,7 @@ export function CheckoutView({
                   className={inputClass}
                 />
                 {errors.fullName ? (
-                  <p id="full-name-error" className="mt-1 text-sm text-red-700 dark:text-red-300">
+                  <p id="full-name-error" className="mt-1 text-sm text-[#a94816]">
                     {errors.fullName}
                   </p>
                 ) : null}
@@ -323,7 +325,7 @@ export function CheckoutView({
                   className={inputClass}
                 />
                 {errors.phoneNumber ? (
-                  <p id="phone-number-error" className="mt-1 text-sm text-red-700 dark:text-red-300">
+                  <p id="phone-number-error" className="mt-1 text-sm text-[#a94816]">
                     {errors.phoneNumber}
                   </p>
                 ) : null}
@@ -347,7 +349,7 @@ export function CheckoutView({
                   className={`${inputClass} py-3`}
                 />
                 {errors.address ? (
-                  <p id="delivery-address-error" className="mt-1 text-sm text-red-700 dark:text-red-300">
+                  <p id="delivery-address-error" className="mt-1 text-sm text-[#a94816]">
                     {errors.address}
                   </p>
                 ) : null}
@@ -357,10 +359,10 @@ export function CheckoutView({
 
           <fieldset
             aria-describedby={errors.batchId ? "batch-error" : undefined}
-            className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800"
+            className="rounded-3xl border border-[#e6dfd3] bg-white p-5 shadow-[0_10px_30px_rgba(20,63,49,0.06)] sm:p-7"
           >
-            <legend className="px-1 text-lg font-semibold">Delivery batch</legend>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <legend className="px-1 text-lg font-black text-[#143f31]">Delivery batch</legend>
+            <p className="mt-1 text-sm text-[#627269]">
               Delivery times and order cut-offs are awaiting restaurant confirmation.
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -370,11 +372,11 @@ export function CheckoutView({
                 return (
                   <label
                     key={batch.id}
-                    className={`flex min-h-14 items-center gap-3 rounded-lg border p-3 ${
+                    className={`flex min-h-16 items-center gap-3 rounded-2xl border p-4 ${
                       availability.available
-                        ? "cursor-pointer border-zinc-300 dark:border-zinc-700"
-                        : "cursor-not-allowed border-zinc-200 bg-zinc-100 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500"
-                    } ${isSelected ? "ring-2 ring-zinc-900 dark:ring-zinc-100" : ""}`}
+                        ? "cursor-pointer border-[#c5d5cb] bg-[#fffdf9] hover:border-[#1d5b45] hover:bg-[#edf5ef]"
+                        : "cursor-not-allowed border-[#e6dfd3] bg-[#f3efe7] text-[#819087]"
+                    } ${isSelected ? "ring-2 ring-[#e87932]" : ""}`}
                   >
                     <input
                       type="radio"
@@ -385,7 +387,7 @@ export function CheckoutView({
                       disabled={!availability.available}
                       onChange={() => updateValue("batchId", batch.id)}
                       aria-describedby={`batch-status-${batch.id}`}
-                      className="size-4 accent-zinc-900"
+                      className="size-4 accent-[#1d5b45]"
                     />
                     <span className="flex flex-1 items-center justify-between gap-2">
                       <span className="font-medium">{batch.label}</span>
@@ -398,7 +400,7 @@ export function CheckoutView({
               })}
             </div>
             {errors.batchId ? (
-              <p id="batch-error" role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">
+              <p id="batch-error" role="alert" className="mt-2 text-sm text-[#a94816]">
                 {errors.batchId}
               </p>
             ) : null}
@@ -407,7 +409,7 @@ export function CheckoutView({
           <button
             type="submit"
             disabled={!isCartValid}
-            className="min-h-12 rounded-full bg-zinc-900 px-5 font-semibold text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
+            className="hidden min-h-12 rounded-xl bg-[#1d5b45] px-5 font-bold text-white hover:bg-[#143f31] disabled:cursor-not-allowed disabled:bg-[#e8e2d9] disabled:text-[#9a9f99] sm:flex sm:items-center sm:justify-center"
           >
             Review delivery details
           </button>
@@ -416,7 +418,7 @@ export function CheckoutView({
             <div className="flex flex-col gap-3">
               <p
                 role="status"
-                className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"
+                className="rounded-xl border border-[#f1d0a6] bg-[#fff8e9] p-3 text-sm text-[#875a16]"
               >
                 Review complete for {checkoutData.delivery.deliveryBatchLabel}. Your order has not
                 been submitted yet.
@@ -425,7 +427,7 @@ export function CheckoutView({
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={isSubmitting}
-                className="min-h-12 rounded-full bg-green-800 px-5 font-semibold text-white hover:bg-green-700 disabled:cursor-wait disabled:opacity-60"
+                className="min-h-12 rounded-xl bg-[#e87932] px-5 font-semibold text-white hover:bg-[#c85e1e] disabled:cursor-wait disabled:opacity-60"
               >
                 {isSubmitting ? "Submitting order…" : "Place order"}
               </button>
@@ -434,7 +436,7 @@ export function CheckoutView({
           {submissionError ? (
             <div
               role="alert"
-              className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
+              className="rounded-xl border border-[#efc8b7] bg-[#fff0e5] p-3 text-sm text-[#8b3f22]"
             >
               <p>{submissionError}</p>
               {isIdempotencyConflict ? (
@@ -460,19 +462,20 @@ export function CheckoutView({
           ) : null}
         </form>
 
-        <aside className="h-fit rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold">Order summary</h2>
+        <aside className="h-fit rounded-3xl border border-border bg-surface p-5 shadow-panel sm:p-6 lg:sticky lg:top-24">
+          <p className="text-sm font-bold text-brand-orange">Order summary</p>
+          <h2 className="mt-1 text-xl font-black text-[#143f31]">Your order</h2>
           <ul className="mt-4 flex flex-col gap-3">
             {cartLines.map(({ item, quantity, lineTotalSen }) => (
               <li key={item.id} className="flex justify-between gap-3 text-sm">
                 <span className="min-w-0">
-                  {item.name} <span className="text-zinc-500">× {quantity}</span>
+                  {item.name} <span className="text-[#819087]">× {quantity}</span>
                 </span>
                 <span className="shrink-0 tabular-nums">{formatRinggit(lineTotalSen)}</span>
               </li>
             ))}
           </ul>
-          <dl className="mt-4 flex flex-col gap-2 border-t border-zinc-200 pt-4 tabular-nums dark:border-zinc-800">
+          <dl className="mt-4 flex flex-col gap-2 border-t border-[#e6dfd3] pt-4 tabular-nums">
             <div className="flex justify-between">
               <dt>Food subtotal</dt>
               <dd>{formatRinggit(total.subtotalSen)}</dd>
@@ -481,17 +484,17 @@ export function CheckoutView({
               <dt>Delivery fee</dt>
               <dd>{formatRinggit(total.deliveryFeeSen)}</dd>
             </div>
-            <div className="flex justify-between text-lg font-semibold">
+            <div className="flex justify-between text-lg font-bold text-[#1d5b45]">
               <dt>Total</dt>
               <dd>{formatRinggit(total.totalSen)}</dd>
             </div>
           </dl>
 
-          <div className="mt-4 border-t border-zinc-200 pt-4 text-sm dark:border-zinc-800">
+          <div className="mt-4 border-t border-[#e6dfd3] pt-4 text-sm">
             <h3 className="font-semibold">Delivery review</h3>
             <dl className="mt-2 flex flex-col gap-2">
               <div>
-                <dt className="text-zinc-500 dark:text-zinc-400">Batch</dt>
+                <dt className="text-[#819087]">Batch</dt>
                 <dd>
                   {selectedBatch && selectedBatchAvailability?.available
                     ? selectedBatch.label
@@ -499,11 +502,11 @@ export function CheckoutView({
                 </dd>
               </div>
               <div>
-                <dt className="text-zinc-500 dark:text-zinc-400">Address</dt>
+                <dt className="text-[#819087]">Address</dt>
                 <dd className="break-words">{values.address.trim() || "Enter your address above"}</dd>
               </div>
               <div>
-                <dt className="text-zinc-500 dark:text-zinc-400">Contact</dt>
+                <dt className="text-[#819087]">Contact</dt>
                 <dd className="break-words">
                   {values.fullName.trim() || "Enter your name above"}
                   {values.phoneNumber.trim() ? ` · ${values.phoneNumber.trim()}` : ""}
@@ -513,6 +516,31 @@ export function CheckoutView({
           </div>
         </aside>
       </div>
+      {!checkoutData ? (
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+          <button
+            type="submit"
+            form="checkout-details"
+            disabled={!isCartValid}
+            aria-label="Review delivery details on mobile"
+            className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center rounded-xl bg-brand-green px-5 font-bold text-white shadow-card disabled:bg-[#e8e2d9] disabled:text-[#9a9f99]"
+          >
+            Review delivery details
+          </button>
+        </div>
+      ) : (
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+          <button
+            type="button"
+            onClick={handlePlaceOrder}
+            disabled={isSubmitting}
+            aria-label="Place order on mobile"
+            className="mx-auto flex min-h-12 w-full max-w-md items-center justify-center rounded-xl bg-brand-orange px-5 font-bold text-white shadow-card disabled:cursor-wait disabled:opacity-60"
+          >
+            {isSubmitting ? "Submitting order…" : "Place order"}
+          </button>
+        </div>
+      )}
     </main>
   );
 }

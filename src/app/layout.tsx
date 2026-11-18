@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { CartProvider } from "@/components/CartProvider";
+import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,14 +11,17 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: "Keteng Plates",
-  description: "Order Keteng Plates meals for delivery.",
+  description: "Fresh Keteng Plates meals delivered to you.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <CartProvider>{children}</CartProvider>
+    <html lang="en" data-scroll-behavior="smooth" className={`${geistSans.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-[#fbf8f2]">
+        <CartProvider>
+          <SiteHeader />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import { calculateCartTotal } from "@/lib/cart-total";
 import { formatRinggit } from "@/lib/money";
 import { useCart } from "./CartProvider";
 import { QuantityStepper } from "./QuantityStepper";
+import { FoodPlaceholder } from "./FoodPlaceholder";
 
 const problemMessages: Record<Exclude<CheckoutProblem, "empty">, string> = {
   sold_out: "Some items have sold out. Please remove them to continue.",
@@ -14,7 +15,7 @@ const problemMessages: Record<Exclude<CheckoutProblem, "empty">, string> = {
 };
 
 const primaryButtonClass =
-  "flex min-h-12 w-full items-center justify-center rounded-full px-5 font-medium";
+  "flex min-h-12 w-full items-center justify-center rounded-xl px-5 font-semibold";
 
 // The cart: each line with its quantity and total, then subtotal, delivery and total.
 // `menuItems` is the fresh menu, so prices and "Sold out" are always current.
@@ -26,17 +27,17 @@ export function CartView({ menuItems }: { menuItems: MenuItem[] }) {
   if (cartLines.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-8 text-center text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+        <p className="rounded-2xl border border-dashed border-[#d8d0c3] bg-white px-4 py-10 text-center text-[#627269]">
           Your cart is empty. Add something from the menu to continue.
         </p>
         <button
           type="button"
           disabled
-          className={`${primaryButtonClass} cursor-not-allowed bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400`}
+          className={`${primaryButtonClass} cursor-not-allowed bg-[#e8e2d9] text-[#9a9f99]`}
         >
           Continue to checkout
         </button>
-        <Link href="/" className="text-center font-medium underline underline-offset-4">
+        <Link href="/" className="text-center font-semibold text-[#1d5b45] underline underline-offset-4">
           Back to menu
         </Link>
       </div>
@@ -48,88 +49,63 @@ export function CartView({ menuItems }: { menuItems: MenuItem[] }) {
   );
 
   return (
-    <div className="flex flex-col gap-6">
-      <ul className="flex flex-col gap-2">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+      <ul className="flex flex-col gap-3">
         {cartLines.map(({ item, quantity, lineTotalSen }) => (
           <li
             key={item.id}
-            className="flex flex-col gap-3 rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800"
+            className="flex gap-3 rounded-2xl border border-border bg-surface p-3 shadow-card sm:items-center sm:gap-4 sm:p-4"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{item.code}</p>
-                <p className="font-medium leading-snug">{item.name}</p>
-                <p className="text-sm text-zinc-600 tabular-nums dark:text-zinc-400">
-                  {quantity} × {formatRinggit(item.priceSen)}
-                </p>
-              </div>
-              <p className="shrink-0 font-semibold tabular-nums">{formatRinggit(lineTotalSen)}</p>
+            <div className="block">
+              <FoodPlaceholder categoryKind={item.categoryKind} compact />
             </div>
-
-            {item.isAvailable ? (
-              <QuantityStepper
-                itemName={item.name}
-                quantity={quantity}
-                onDecrease={() => decrease(item.id)}
-                onIncrease={() => add(item)}
-              />
-            ) : (
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800 dark:bg-red-950 dark:text-red-200">
-                  Sold out, please remove
-                </span>
-                <button
-                  type="button"
-                  onClick={() => remove(item.id)}
-                  aria-label={`Remove ${item.name} from cart`}
-                  className="min-h-11 rounded-full border border-zinc-300 px-4 font-medium dark:border-zinc-700"
-                >
-                  Remove
-                </button>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[#819087]">{item.code}</p>
+                  <p className="mt-1 font-bold leading-snug text-[#18352b]">{item.name}</p>
+                  <p className="mt-1 text-sm text-[#627269] tabular-nums">
+                    {quantity} × {formatRinggit(item.priceSen)}
+                  </p>
+                </div>
+                <p className="shrink-0 text-base font-black tabular-nums text-[#1d5b45]">{formatRinggit(lineTotalSen)}</p>
               </div>
-            )}
+              <div className="mt-3 flex items-center justify-between gap-2">
+                {item.isAvailable ? (
+                  <QuantityStepper itemName={item.name} quantity={quantity} onDecrease={() => decrease(item.id)} onIncrease={() => add(item)} />
+                ) : (
+                  <>
+                    <span className="rounded-full bg-[#fff0e5] px-3 py-1.5 text-xs font-bold text-[#a94816]">Sold out, please remove</span>
+                    <button type="button" onClick={() => remove(item.id)} aria-label={`Remove ${item.name} from cart`} className="min-h-11 px-2 text-sm font-bold text-[#a94816] underline decoration-[#efc8b7] underline-offset-4 hover:text-[#7d351e]">Remove</button>
+                  </>
+                )}
+              </div>
+            </div>
           </li>
         ))}
       </ul>
-
-      <dl className="flex flex-col gap-2 border-t border-zinc-200 pt-4 tabular-nums dark:border-zinc-800">
-        <div className="flex justify-between">
-          <dt>Subtotal</dt>
-          <dd>{formatRinggit(total.subtotalSen)}</dd>
-        </div>
-        <div className="flex justify-between">
-          <dt>Delivery fee</dt>
-          <dd>{formatRinggit(total.deliveryFeeSen)}</dd>
-        </div>
-        <div className="flex justify-between text-lg font-semibold">
-          <dt>Total</dt>
-          <dd>{formatRinggit(total.totalSen)}</dd>
-        </div>
-      </dl>
-
-      {problems.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          <ul role="alert" className="flex flex-col gap-1 text-sm text-red-800 dark:text-red-200">
-            {problems.map((problem) =>
-              problem === "empty" ? null : <li key={problem}>{problemMessages[problem]}</li>,
+      <aside className="lg:sticky lg:top-24">
+        <div className="rounded-3xl border border-border bg-surface p-5 shadow-panel sm:p-6">
+          <p className="text-sm font-bold text-brand-orange">Order summary</p>
+          <dl className="mt-4 flex flex-col gap-3 text-base tabular-nums">
+            <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatRinggit(total.subtotalSen)}</dd></div>
+            <div className="flex justify-between"><dt>Delivery fee</dt><dd>{formatRinggit(total.deliveryFeeSen)}</dd></div>
+            <div className="mt-1 flex justify-between border-t border-[#e6dfd3] pt-4 text-xl font-black text-[#1d5b45]"><dt>Total</dt><dd>{formatRinggit(total.totalSen)}</dd></div>
+          </dl>
+          <div className="mt-5">
+            {problems.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                <ul role="alert" className="flex flex-col gap-1 rounded-xl border border-[#efc8b7] bg-[#fff0e5] p-3 text-sm text-[#8b3f22]">
+                  {problems.map((problem) => problem === "empty" ? null : <li key={problem}>{problemMessages[problem]}</li>)}
+                </ul>
+                <button type="button" disabled className={`${primaryButtonClass} cursor-not-allowed bg-[#e8e2d9] text-[#9a9f99]`}>Continue to checkout</button>
+              </div>
+            ) : (
+              <Link href="/checkout" className={`${primaryButtonClass} bg-brand-green text-white shadow-card hover:bg-brand-green-dark`}>Continue to checkout</Link>
             )}
-          </ul>
-          <button
-            type="button"
-            disabled
-            className={`${primaryButtonClass} cursor-not-allowed bg-zinc-200 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400`}
-          >
-            Continue to checkout
-          </button>
+          </div>
         </div>
-      ) : (
-        <Link
-          href="/checkout"
-          className={`${primaryButtonClass} bg-zinc-900 text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200`}
-        >
-          Continue to checkout
-        </Link>
-      )}
+      </aside>
     </div>
   );
 }

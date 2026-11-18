@@ -7,7 +7,7 @@ type QuantityStepperProps = {
 };
 
 const buttonClass =
-  "flex h-11 w-11 items-center justify-center rounded-full border border-zinc-300 text-xl font-semibold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800";
+  "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#c5d5cb] bg-white text-xl font-bold text-[#1d5b45] hover:border-[#1d5b45] hover:bg-[#edf5ef]";
 
 export function QuantityStepper({ itemName, quantity, onDecrease, onIncrease }: QuantityStepperProps) {
   return (

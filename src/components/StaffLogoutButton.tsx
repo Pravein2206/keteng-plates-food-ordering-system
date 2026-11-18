@@ -33,12 +33,12 @@ export function StaffLogoutButton() {
         type="button"
         onClick={signOut}
         disabled={submitting}
-        className="min-h-10 rounded-full border border-zinc-300 px-4 text-sm font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-800"
+        className="min-h-10 rounded-full border border-[#c5d5cb] px-4 text-sm font-semibold text-[#1d5b45] hover:bg-[#edf5ef] disabled:opacity-60"
       >
         {submitting ? "Signing out…" : "Sign out"}
       </button>
       {error ? (
-        <p role="alert" className="max-w-48 text-right text-xs text-red-700 dark:text-red-300">
+        <p role="alert" className="max-w-48 text-right text-xs text-[#a94816]">
           {error}
         </p>
       ) : null}
