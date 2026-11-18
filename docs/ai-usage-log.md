@@ -174,3 +174,45 @@ fee charged once. Block checkout for an empty cart or invalid quantities.
 - Max quantity per item, add-ons alone and drinks alone: waiting for the owner (issue #19).
 - `/checkout` is reachable by typing the URL even with an empty cart; US03 must guard it.
 - The cart is cleared after an order is placed in US04 (not yet built).
+
+---
+
+## 2026-11-18: US03 Delivery details and checkout (feature/us03-delivery)
+
+**Agent:** GitHub Copilot
+
+### Task
+Implement the US03 delivery-details stage and connect it to the US02 cart without building US04 order submission or payment verification.
+
+### Prompt / approach
+1. Read `us03.md`, inspected the latest `origin/feature/us02-cart` commit (`d6a85d1`) and its cart provider, cart rules, prices and checkout placeholder.
+2. Used the current clean, isolated worktree for `feature/us03-delivery`, based on that US02 commit. No existing teammate worktree or branch was changed.
+3. Kept delivery-batch names configurable and did not invent delivery times or cut-offs. Unconfigured batches are selectable, with a visible notice that owner confirmation is pending.
+4. Read the Next.js 16 App Router guidance bundled in `node_modules/next/dist/docs/` before writing the checkout UI.
+
+### What the agent produced
+- A responsive checkout form for name, Malaysian phone, address and one of four delivery batches, with field validation and a review summary.
+- Configurable batch enablement and cut-offs evaluated in `Asia/Kuala_Lumpur`, including an exact close-at-cut-off boundary.
+- A typed `CheckoutData` contract containing validated delivery details and item IDs/quantities. It excludes totals so US04 must recalculate from database prices.
+- Checkout cart guards, fresh menu prices/availability, one RM2 delivery charge, and localStorage-backed cart preservation when returning to the cart.
+- Focused validation, batch-schedule and checkout tests.
+
+### Verification
+- `npm test`: 100 tests passed across 14 files.
+- `npm run lint`: passed.
+- `npx tsc --noEmit`: passed.
+- `npm run build`: Next.js compilation and TypeScript passed; prerendering then stopped because `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are not configured locally. No `.env.local` or credentials were added.
+- The installed runtime was Node 26.13.1 rather than the repository's required Node 24, so npm reported an engine warning.
+
+### What was corrected along the way
+- Checkout now rejects whitespace-only names and addresses, validates Malaysian phone formats, and re-checks batch availability when details are reviewed.
+- The checkout review state explicitly says order submission is not available yet and that no order has been saved.
+
+### What we learned
+- Reusing the existing cart store and single total function preserves quantities and avoids charging the delivery fee twice.
+- Cut-offs can be represented as Malaysia-local dates/times, so the app does not depend on the customer's device timezone or invent schedules.
+
+### Still uncertain / follow-ups
+- The restaurant owner must confirm delivery schedules, cut-offs and batch availability before those settings are configured for real ordering.
+- US04 must accept `CheckoutData`, revalidate item IDs and quantities, recalculate the total from current database prices and persist the order. The checkout does not submit or save an order.
+- Configure local Supabase publishable settings and use Node 24 to verify the production build in the project runtime.
